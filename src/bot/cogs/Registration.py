@@ -1,10 +1,20 @@
+# python lib
 import asyncio
+from asyncio import sleep
+from logging import INFO
+
+# pip lib
 from disnake import ModalInteraction, MessageInteraction, CommandInter, ButtonStyle, Member, Colour
 from disnake.ext import commands
 from disnake.ui import Button
+
+# project lib
 from src.bot.components.dbmanager import DatabaseManager
-from asyncio import sleep
 from src.bot.components.smartdisnake import *
+from ..components.log.logger import CustomLogger
+
+# creating logger
+logger = CustomLogger(__name__, INFO)
 
 
 class ReadyRegModal(SmartRegModal):
@@ -109,7 +119,7 @@ class Registration(commands.Cog):
 
         for key_discord_el in args:
             if self.bot.cfg["discord_ids"].get(key_discord_el) is None:
-                self.bot.log.printf(f"[*/Registration] отмена выполнения ~ {key_discord_el}")
+                logger.info(f"[*/Registration] отмена выполнения ~ {key_discord_el}")
                 return False
 
         return True
@@ -217,13 +227,13 @@ class Registration(commands.Cog):
 
         if not is_accept:
             del self.user_responses[inter.user.id]
-            self.log.printf(f"[*/Registration] участник({inter.user.global_name}) не пропущен\n{reason}")
+            logger.info(f"[*/Registration] участник({inter.user.global_name}) не пропущен\n{reason}")
             embed = await self.get_reject_embed(inter.user, reason)
             channel = inter.guild.get_channel(self.bot.cfg["discord_ids"]["ver_result_ch"])
             await channel.send(content=inter.user.mention, embed=embed)
             return
 
-        self.log.printf(f"[*/Registration] игрок({inter.user.global_name}) подал заявку")
+        logger.info(f"[*/Registration] игрок({inter.user.global_name}) подал заявку")
         self.dbm.user_add(table="PendingUsers", ud=self.user_responses[inter.user.id]["full"], discord_id=inter.user.id)
         self.dbm.commit()
         del self.user_responses[inter.user.id]

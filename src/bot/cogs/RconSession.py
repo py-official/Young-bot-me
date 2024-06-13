@@ -1,10 +1,18 @@
+# python lib
+from logging import ERROR
+
+# pip lib
 import disnake
-from aiomcrcon import Client
-from aiomcrcon import IncorrectPasswordError, RCONConnectionError, ClientNotConnectedError
 from disnake.ext import commands
 from disnake import Message, ApplicationCommandInteraction
-from components.jsonmanager import JsonManager
-import asyncio
+from aiomcrcon import Client
+from aiomcrcon import IncorrectPasswordError, RCONConnectionError, ClientNotConnectedError
+
+# project lib
+from ..components.log.logger import CustomLogger
+
+# creating logger
+logger = CustomLogger(__name__, ERROR)
 
 
 class SmartRconSession:
@@ -112,7 +120,7 @@ class RconSession(commands.Cog):
             response_code, response_message = await self.sessions[session_card["channel_id"]].connect()
 
             if response_code:
-                self.bot.log.printf(self.bot.cfg["replics"]["err_connect"].format(
+                logger.error(self.bot.cfg["replics"]["err_connect"].format(
                     response_code=response_code, rcon_host=session_card['rcon_host'], rcon_port=session_card['rcon_port'])
                 )
 
