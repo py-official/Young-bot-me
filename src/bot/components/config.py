@@ -12,6 +12,7 @@ DIR_CONF_YAML = DIR_CONFS + "yaml/"
 DIR_CONF_YAML_DYNAMIC = DIR_CONF_YAML + "dynamic/"
 DIR_CONF_YAML_STATIC = DIR_CONF_YAML + "static/"
 DIR_LOGS = DIR_DATA + "logs/"
+DIR_DATABASE = DIR_DATA + "dbs/"
 
 # file names
 FILE_NAME_CONF_DYNAMIC_OLD_MOUSE = "dynamic_old_mouse_config"
