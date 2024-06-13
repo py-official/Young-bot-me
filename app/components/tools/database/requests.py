@@ -3,10 +3,10 @@ from sqlalchemy import create_engine, Column, MetaData, Table, Select, Insert
 from sqlalchemy.engine.cursor import CursorResult
 
 # my lib
-from src.bot.components.config import (
+from app.components.config import (
     DIR_DATABASE,
 )
-from src.bot.components.tools.instances import Instances
+from app.components.tools.instances import Instances
 
 
 # creating class to interact with the database

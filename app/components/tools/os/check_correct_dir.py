@@ -2,7 +2,7 @@
 import os
 
 # my lib
-from src.bot.components.config import (
+from app.components.config import (
     API_STATIC_FILES_DIRS,
 )
 

@@ -9,8 +9,8 @@ from disnake.ext import commands
 from disnake.ui import Button
 
 # project lib
-from src.bot.components.dbmanager import DatabaseManager
-from src.bot.components.smartdisnake import *
+from app.components.dbmanager import DatabaseManager
+from app.components.smartdisnake import *
 from ..components.log.logger import CustomLogger
 
 # creating logger

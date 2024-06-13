@@ -11,8 +11,8 @@ from disnake.ui import View, Button
 
 # project lib
 from ..components.log.logger import CustomLogger
-from src.bot.components.dbmanager import DatabaseManager
-from src.bot.components.smartdisnake import *
+from app.components.dbmanager import DatabaseManager
+from app.components.smartdisnake import *
 
 # creating logger
 logger = CustomLogger(__name__, INFO)
@@ -346,7 +346,7 @@ class Accepting(commands.Cog):
         # get and send embed with result
         embed = await self.get_reject_embed(inter=inter, member=user, reason=reason)
         logger.info(f"[*/Accepting] multiline\nМодератор {inter.user.global_name} "
-                        f"отклонил игрока {user.name}\nПричина: {reason}")
+                    f"отклонил игрока {user.name}\nПричина: {reason}")
         await channel.send(content=f'<@{self.users[self.user_panel_id]["did"]}>', embed=embed)
         # del user and go to next
         del self.users[self.user_panel_id]
