@@ -1,10 +1,18 @@
+# python lib
+from logging import ERROR
+
+# pip lib
 import disnake
 from aiomcrcon import Client
 from aiomcrcon import IncorrectPasswordError, RCONConnectionError, ClientNotConnectedError
 from disnake.ext import commands
 from disnake import Message, ApplicationCommandInteraction
-from components.jsonmanager import JsonManager
-import asyncio
+
+# project lib
+from ..components.log.logger import CustomLogger
+
+# create logger
+logger = CustomLogger(__name__, ERROR)
 
 
 class SmartRconSession:
@@ -112,8 +120,9 @@ class RconSession(commands.Cog):
             response_code, response_message = await self.sessions[session_card["channel_id"]].connect()
 
             if response_code:
-                self.bot.log.printf(self.bot.cfg["replics"]["err_connect"].format(
-                    response_code=response_code, rcon_host=session_card['rcon_host'], rcon_port=session_card['rcon_port'])
+                logger.error(self.bot.cfg["replics"]["err_connect"].format(
+                    response_code=response_code, rcon_host=session_card['rcon_host'],
+                    rcon_port=session_card['rcon_port'])
                 )
 
     async def _save_sessions(self):
@@ -151,8 +160,10 @@ class RconSession(commands.Cog):
             inter.guild.default_role: disnake.PermissionOverwrite(view_channel=False),
             inter.guild.me: disnake.PermissionOverwrite(view_channel=True, embed_links=True)
         }
-        text_ch = await category.create_text_channel(name=f"{rcon_host}_{rcon_port}".replace(".", "_"), overwrites=overwrites)
-        self.sessions[text_ch.id] = SmartRconSession(rcon_host=rcon_host, rcon_port=rcon_port, rcon_password=rcon_password)
+        text_ch = await category.create_text_channel(name=f"{rcon_host}_{rcon_port}".replace(".", "_"),
+                                                     overwrites=overwrites)
+        self.sessions[text_ch.id] = SmartRconSession(rcon_host=rcon_host, rcon_port=rcon_port,
+                                                     rcon_password=rcon_password)
         await self.sessions[text_ch.id].connect()
         await self._save_sessions()
 
@@ -168,7 +179,8 @@ class RconSession(commands.Cog):
         try:
             for key in self.sessions.keys():
                 msg += self.bot.cfg["replics"]["list_session_part"].format(
-                    key=key, rcon_host=self.sessions[key].rcon_host, rcon_port=self.sessions[key].rcon_port, rcon_password=self.sessions[key].rcon_password
+                    key=key, rcon_host=self.sessions[key].rcon_host, rcon_port=self.sessions[key].rcon_port,
+                    rcon_password=self.sessions[key].rcon_password
                 )
         except Exception as e:
             print("==========================================================================Error: 24235")
