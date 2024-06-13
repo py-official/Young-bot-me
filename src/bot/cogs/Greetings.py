@@ -1,17 +1,6 @@
-# python lib
-from random import randint
-from logging import INFO
-
-# pip lib
 import disnake
 from disnake.ext import commands
-
-# project lib
-from ..components.log.logger import CustomLogger
-
-
-# creating logger
-logger = CustomLogger(__name__, INFO)
+from random import randint
 
 
 class Greeting(commands.Cog):
@@ -28,7 +17,7 @@ class Greeting(commands.Cog):
 
         for key_discord_el in args:
             if self.bot.cfg["discord_ids"].get(key_discord_el) is None:
-                logger.info(f"[*/Greetings] отмена выполнения ~ {key_discord_el}")
+                self.bot.log.printf(f"[*/Greetings] отмена выполнения ~ {key_discord_el}")
                 return False
 
         return True

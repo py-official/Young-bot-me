@@ -1,42 +1,23 @@
-# python lib
-from logging import INFO
-from json import dumps
-from io import BytesIO
-
-# pip lib
-import disnake
 from disnake.ext import commands
 from disnake.ui import View, Button
 from asyncio import sleep
-
-# project lib
-from ..components.log.logger import CustomLogger
+import disnake
+from io import BytesIO
 from src.bot.components.dbmanager import DatabaseManager
 from src.bot.components.smartdisnake import *
-
-
-# creating a logger
-logger = CustomLogger(__name__, INFO)
-
+from json import dumps
 
 class TestView(View):
     def __init__(self, block_previous_butt: bool = False, block_next_butt: bool = False, block_full: bool = False):
         super().__init__()
 
-        self.add_item(Button(label="◀", style=disnake.ButtonStyle.primary,
-                             custom_id="previous_user", row=0, disabled=block_full or block_previous_butt))
-        self.add_item(Button(label="▶", style=disnake.ButtonStyle.primary,
-                             custom_id="next_user", row=0, disabled=block_full or block_next_butt))
-        self.add_item(Button(label="Создать чат", style=disnake.ButtonStyle.gray,
-                             custom_id="open_dm", row=0, emoji="📃", disabled=block_full))
-        self.add_item(Button(label="Закрыть фул!", style=disnake.ButtonStyle.gray,
-                             custom_id="close_panel", row=0, emoji="⚠"))
-        self.add_item(Button(label="Принять", style=disnake.ButtonStyle.green,
-                             custom_id="accept", row=1, emoji="✅", disabled=block_full))
-        self.add_item(Button(label="Отказать", style=disnake.ButtonStyle.red,
-                             custom_id="reject", row=1, emoji="⛔", disabled=block_full))
-        self.add_item(Button(label="Отказать с причиной", style=disnake.ButtonStyle.red,
-                             custom_id="reject_reason", row=1, emoji="📛", disabled=block_full))
+        self.add_item(Button(label="◀", style=disnake.ButtonStyle.primary, custom_id="previous_user", row=0, disabled=block_full or block_previous_butt))
+        self.add_item(Button(label="▶", style=disnake.ButtonStyle.primary, custom_id="next_user", row=0, disabled=block_full or block_next_butt))
+        self.add_item(Button(label="Создать чат", style=disnake.ButtonStyle.gray, custom_id="open_dm", row=0, emoji="📃", disabled=block_full))
+        self.add_item(Button(label="Закрыть фул!", style=disnake.ButtonStyle.gray, custom_id="close_panel", row=0, emoji="⚠"))
+        self.add_item(Button(label="Принять", style=disnake.ButtonStyle.green, custom_id="accept", row=1, emoji="✅", disabled=block_full))
+        self.add_item(Button(label="Отказать", style=disnake.ButtonStyle.red, custom_id="reject", row=1, emoji="⛔", disabled=block_full))
+        self.add_item(Button(label="Отказать с причиной", style=disnake.ButtonStyle.red, custom_id="reject_reason", row=1, emoji="📛", disabled=block_full))
 
 
 class ReasonModal(SmartModal):
@@ -87,13 +68,13 @@ class Accepting(commands.Cog):
     def reload(self):
         self.cfg = self.bot.cfg
         self.__class__.dio = self.cfg["discord_ids"]
-        logger.info(f"Modal {self.__class__.__name__} was reloaded")
+        self.bot.log.printf(f"Modal {self.__class__.__name__} was reloaded")
 
     async def is_have_ids(self, *args):
 
         for key_discord_el in args:
             if self.bot.cfg["discord_ids"].get(key_discord_el) is None:
-                logger.info(f"[*/Accepting] отмена выполнения ~ {key_discord_el}")
+                self.bot.log.printf(f"[*/Accepting] отмена выполнения ~ {key_discord_el}")
                 return False
 
         return True
@@ -148,8 +129,7 @@ class Accepting(commands.Cog):
         if inter.guild.get_member(self.users[self.user_panel_id]["did"]) is None:
             await self.func_reject(inter=inter, reason=self.cfg["replics"]["user_leave_server"])
             return
-        embed, file = await self.get_embed(moder_name=inter.user.name,
-                                           moder_avatar=inter.user.display_avatar.url, uid=self.user_panel_id)
+        embed, file = await self.get_embed(moder_name=inter.user.name, moder_avatar=inter.user.display_avatar.url, uid=self.user_panel_id)
         view = await self.get_view(user_panel_id=self.user_panel_id)
         await self.panel.edit(attachments=None)
         await self.panel.edit(content="", embed=embed, files=[] if file is None else [file], view=view)
@@ -192,8 +172,7 @@ class Accepting(commands.Cog):
     # component methods ->(disnake) for class -> Accepting
 
     async def get_view(self, user_panel_id: int = 0) -> TestView:
-        button_view = TestView(block_previous_butt=user_panel_id == 0,
-                               block_next_butt=user_panel_id == len(self.users)-1)
+        button_view = TestView(block_previous_butt=user_panel_id == 0, block_next_butt=user_panel_id == len(self.users)-1)
         return button_view
 
     async def get_file(self, user_data: dict) -> disnake.File:
@@ -255,8 +234,7 @@ class Accepting(commands.Cog):
 
         return embed
 
-    async def get_reject_embed(self, inter: disnake.MessageInteraction, member: disnake.Member,
-                               reason: str) -> disnake.Embed:
+    async def get_reject_embed(self, inter: disnake.MessageInteraction, member: disnake.Member, reason: str) -> disnake.Embed:
         embed = SmartEmbed(cfg=self.cfg["embeds"]["request_reject"])
         embed.title = embed.title.format(user_name=member.name).upper()
         embed.color = disnake.Colour.brand_red()
@@ -291,29 +269,19 @@ class Accepting(commands.Cog):
         category = inter.guild.get_channel(self.bot.cfg["discord_ids"]["dm_category"]) # категория для дм
         user = inter.guild.get_member(self.users[self.user_panel_id]["did"])
         overwrites = {
-            inter.guild.get_role(
-                self.bot.cfg["discord_ids"]["moder_role"]
-            ): disnake.PermissionOverwrite(view_channel=True),  # роль проверяющего
-            inter.guild.get_role(
-                self.bot.cfg["discord_ids"]["member_role"]
-            ): disnake.PermissionOverwrite(view_channel=False),  # роль участника
+            inter.guild.get_role(self.bot.cfg["discord_ids"]["moder_role"]): disnake.PermissionOverwrite(view_channel=True),  # роль проверяющего
+            inter.guild.get_role(self.bot.cfg["discord_ids"]["member_role"]): disnake.PermissionOverwrite(view_channel=False),  # роль участника
             inter.guild.default_role: disnake.PermissionOverwrite(view_channel=False),
             inter.guild.me: disnake.PermissionOverwrite(view_channel=True, embed_links=True),
             user: disnake.PermissionOverwrite(view_channel=True)
         }
-        text_ch = await category.create_text_channel(
-            name=self.cfg["replics"]["dm_ch_name"].format(member_name=user.name),
-            overwrites=overwrites
-        )
-        embed, file = await self.get_embed(moder_name=inter.user.name,
-                                           moder_avatar=inter.user.avatar.url, uid=self.user_panel_id)
-        await text_ch.send(content=self.cfg["replics"]["dm_start_message"].format(user_mention=user.mention,
-                                                                                  moder_mention=inter.user.mention),
+        text_ch = await category.create_text_channel(name=self.cfg["replics"]["dm_ch_name"].format(member_name=user.name), overwrites=overwrites)
+        embed, file = await self.get_embed(moder_name=inter.user.name, moder_avatar=inter.user.avatar.url, uid=self.user_panel_id)
+        await text_ch.send(content=self.cfg["replics"]["dm_start_message"].format(user_mention=user.mention, moder_mention=inter.user.mention),
                            embed=embed,
                            files=[] if file is None else [file],
                            components=[
-                               Button(label="Закрыть дм", style=disnake.ButtonStyle.primary,
-                                      custom_id="close_dm",  emoji="⏹")
+                               Button(label="Закрыть дм", style=disnake.ButtonStyle.primary, custom_id="close_dm",  emoji="⏹")
                            ]
                            )
         await inter.response.defer()
@@ -334,22 +302,20 @@ class Accepting(commands.Cog):
         # add to wl
         # await self.add_to_wl(guild=inter.guild, nickname=self.users[self.user_panel_id]["login"])
         # get and send embed with result
-        logger.info(f"[*/Accepting] Модератор {inter.user.global_name} принял игрока {member.name}")
+        self.log.printf(f"[*/Accepting] Модератор {inter.user.global_name} принял игрока {member.name}")
         embed = await self.get_accept_embed(inter=inter, member=member)
         await channel.send(content=member.mention, embed=embed)
         # del user from users and go to next user
         del self.users[self.user_panel_id]
         await self.save_set_user(inter=inter, user_panel_id=self.user_panel_id)
 
-    async def func_reject(self, inter: disnake.MessageInteraction,
-                          reason: str = "по личному решению администрации") -> None:
+    async def func_reject(self, inter: disnake.MessageInteraction, reason: str = "по личному решению администрации") -> None:
         user, _, channel = await self.helper_accept_reject(inter=inter)
         # delete user from pending
         await self.del_from_db()
         # get and send embed with result
         embed = await self.get_reject_embed(inter=inter, member=user, reason=reason)
-        logger.info(f"[*/Accepting] multiline\nМодератор {inter.user.global_name} "
-                    f"отклонил игрока {user.name}\nПричина: {reason}")
+        self.log.printf(f"[*/Accepting] multiline\nМодератор {inter.user.global_name} отклонил игрока {user.name}\nПричина: {reason}")
         await channel.send(content=f'<@{self.users[self.user_panel_id]["did"]}>', embed=embed)
         # del user and go to next
         del self.users[self.user_panel_id]
@@ -395,8 +361,7 @@ class Accepting(commands.Cog):
             await inter.response.send_message(content=self.cfg["replics"]["have_not_enough_rights"], ephemeral=True)
             return
 
-        logger.info(f"[*/Accepting] Модератор{inter.user.global_name, inter.user.id} "
-                    f"открыл панель в канале {inter.channel.name, inter.channel.id}")
+        self.log.printf(f"[*/Accepting] Модератор{inter.user.global_name, inter.user.id} открыл панель в канале {inter.channel.name, inter.channel.id}")
         self.user_panel_id = 0
         await self.get_users()
         await inter.response.send_message(content=self.cfg["replics"]["open_panel"], delete_after=3)
@@ -405,8 +370,7 @@ class Accepting(commands.Cog):
 
     @commands.Cog.listener(name="on_button_click")
     async def when_button_click(self, inter: disnake.MessageInteraction):
-        if inter.component.custom_id not in ["previous_user", "next_user", "open_dm", "close_dm",
-                                             "close_panel", "accept", "reject", "reject_reason"]:
+        if inter.component.custom_id not in ["previous_user", "next_user", "open_dm", "close_dm", "close_panel", "accept", "reject", "reject_reason"]:
             return
 
         requirements = "dm_category", "moder_role", "member_role", "player_role", "ver_result_ch"
@@ -416,9 +380,7 @@ class Accepting(commands.Cog):
             return
 
         if inter.user.get_role(self.cfg["discord_ids"].get("moder_role")) is None:
-            await inter.response.send_message(
-                content=self.cfg["replics"]["have_not_enough_rights"].format(user_mention=inter.author.mention),
-                ephemeral=True)
+            await inter.response.send_message(content=self.cfg["replics"]["have_not_enough_rights"].format(user_mention=inter.author.mention), ephemeral=True)
             return
 
         await self.func_dict[inter.component.custom_id](inter=inter)

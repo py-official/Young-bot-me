@@ -1,18 +1,11 @@
-# project lib
-from logging import INFO
-from time import time
-
-# pip lib
 import disnake
 from disnake.ext import commands
+from time import time
+
 from disnake.ext.commands import Context, errors
 from dotenv import dotenv_values
-
-# project lib
-from ..components.log.logger import CustomLogger
-
-# creating logger
-logger = CustomLogger(__name__, INFO)
+from src.bot.components.yaml_manager import JsonManager
+from data.temp.logger import Logger
 
 
 class MEBot(commands.Bot):
@@ -29,10 +22,10 @@ class MEBot(commands.Bot):
     async def on_ready(self):
         end_time = time()
 
-        logger.info(self.cfg["replics"]["start"].format(user=self.user, during_time=end_time-self.start_time))
+        self.log.printf(self.cfg["replics"]["start"].format(user=self.user, during_time=end_time-self.start_time))
 
     async def on_command_error(self, context: Context, exception: errors.CommandError) -> None:
-        logger.info("[&] Ignoring command -> %s" % context.message.content)
+        self.log.printf("[&] Ignoring command -> %s" % context.message.content, log_text=False)
 
 
 class BotManager():
@@ -42,9 +35,8 @@ class BotManager():
         self.cfg.dload_cfg(short_name="bots_properties.json")
         self.env_val = dotenv_values("data/sys/.env")
         self.BotsCont = {}
-        logger.info("[&] Successful initialization of Bot manager")
+        self.log.printf("[&] Successful initialization of Bot manager")
 
-    @staticmethod
     def init_assistant(func):
         def wrapper(self, name_bot):
             func(self, name_bot=name_bot, command_prefix=self.cfg.buffer[name_bot]["command_prefix"])
@@ -54,15 +46,15 @@ class BotManager():
 
     @init_assistant
     def init_bot(self, name_bot, **kwargs):
-        logger.info(f"[&] Start to initialize a bot \"{name_bot}\"")
+        self.log.printf(f"[&] Start to initialize a bot \"{name_bot}\"")
         intents = disnake.Intents.all()
         self.BotsCont[name_bot] = MEBot(name=name_bot, cfg=self.cfg.buffer[name_bot], intents=intents, **kwargs)
 
         for cog in self.cfg.buffer[name_bot]["cogs"]:
-            logger.info(f"[&] Import \"{cog}\" to bot \"{name_bot}\"")
+            self.log.printf(f"[&] Import \"{cog}\" to bot \"{name_bot}\"")
             self.BotsCont[name_bot].load_extension(cog)
 
         token = self.env_val[f"{name_bot}_TOKEN"]
-        logger.info(f"[&] Successful initialization of bot \"{name_bot}\"")
-        logger.info(f"[&] Starting bot \"{name_bot}\"")
+        self.log.printf(f"[&] Successful initialization of bot \"{name_bot}\"")
+        self.log.printf(f"[&] Starting bot \"{name_bot}\"")
         self.BotsCont[name_bot].run(token)
