@@ -11,7 +11,8 @@ from disnake.ui import View, Button
 
 # project lib
 from ..components.log.logger import CustomLogger
-from app.components.dbmanager import DatabaseManager
+# from data.temp.dbmanager import DatabaseManager
+from ..components.database.requests import RequestsToDatabase
 from app.components.smartdisnake import *
 
 # creating logger
@@ -64,7 +65,7 @@ class Accepting(commands.Cog):
         self.__class__.dio = self.cfg["discord_ids"]
         # self.cfg = JsonManager().buffer[self.bot.name]
         # self.cfg.dload_cfg(short_name="bots_properties.json")
-        self.dbm = DatabaseManager(file_name="registration.db")
+        self.dbm = RequestsToDatabase("mysql", "ns35.link-host.net")
         self.users = []
         self.db_fields = ["did"]
         self.user_panel_id = None

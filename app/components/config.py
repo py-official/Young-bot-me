@@ -11,8 +11,10 @@ DIR_CONFS = DIR_DATA + "conf/"
 DIR_CONF_YAML = DIR_CONFS + "yaml/"
 DIR_CONF_YAML_DYNAMIC = DIR_CONF_YAML + "dynamic/"
 DIR_CONF_YAML_STATIC = DIR_CONF_YAML + "static/"
+DIR_CONF_YAML_SECRET = DIR_CONF_YAML + "secret/"
 DIR_LOGS = DIR_DATA + "logs/"
 DIR_DATABASE = DIR_DATA + "dbs/"
+DIR_SECRET_KEYS = DIR_DATA + "secret_keys/"
 
 # file names
 FILE_NAME_CONF_DYNAMIC_OLD_MOUSE = "dynamic_old_mouse_config"
@@ -25,6 +27,7 @@ FILE_NAME_CONF_LOG = "dynamic_log_config"
 FILE_TYPE_YAML_CONFS = ".yaml"
 FILE_TYPE_LOGS = ".log"
 FILE_TYPE_LOGS_ARCHIVE = ".zip"
+FILE_TYPE_SECRET_KEY = ".secret_key"
 
 """
 'dynamic_old_mouse_config.yaml' - dynamic config for the old mouse;

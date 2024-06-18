@@ -28,6 +28,10 @@ share/python-wheels/
 MANIFEST
 data/logs
 TODO.txt
+tests/
+app/tests
+data/secret_keys
+*.secret_key
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
