@@ -2,18 +2,31 @@
 import yaml
 
 
-def load_yaml_file(file_path: str) -> dict:  # function for loading data from yaml files
+def load_yaml_file(file_path: str, encoding: str | None = None) -> dict:  # function for loading data from yaml files
     # opening the yaml file at the specified path and loading data from it
-    with open(file_path, "r") as yaml_file:
-        data = yaml.safe_load(yaml_file)
+
+    if encoding is not None:
+        with open(file_path, "r", encoding=encoding) as yaml_file:
+            data = yaml.safe_load(yaml_file)
+
+    elif encoding is None:
+        with open(file_path, "r", encoding="utf-8") as yaml_file:
+            data = yaml.safe_load(yaml_file)
 
     return data
 
 
-def dump_yaml_file(file_path: str, data: dict) -> None:  # function to dump data into yaml file
+# function to dump data into yaml file
+def dump_yaml_file(file_path: str, data: dict, encoding: str | None = None) -> None:
     # opening a yaml file at the specified path and dumping data into it
-    with open(file_path, "w") as yaml_file:
-        yaml.dump(data, yaml_file, sort_keys=False)
+
+    if encoding is not None:
+        with open(file_path, "w", encoding=encoding) as yaml_file:
+            yaml.dump(data, yaml_file, sort_keys=False)
+
+    elif encoding is None:
+        with open(file_path, "w") as yaml_file:
+            yaml.dump(data, yaml_file, sort_keys=False)
 
 
 """
