@@ -12,6 +12,7 @@ from glob import glob
 # project lib
 from ..config import (
     DIR_LOGS,
+    DIR_CONFS,
     FILE_NAME_CONF_LOG,
     FILE_TYPE_YAML_CONFS,
     FILE_TYPE_LOGS,
@@ -99,7 +100,7 @@ def _convert_date_to_sec(date_format: str, date: str) -> float:
 
 def write_log_to_file(message: object, name: str, level: int) -> None:  # function for writing logs to a file
     # creating var for a path to file 'dynamic_log_config.yaml'
-    path_data_logs = DIR_LOGS + FILE_NAME_CONF_LOG + FILE_TYPE_YAML_CONFS
+    path_data_logs = DIR_CONFS + FILE_NAME_CONF_LOG + FILE_TYPE_YAML_CONFS
 
     # opening a file 'data_log.yaml' and loading data for creating logs.
     data_log: dict = load_yaml_file(path_data_logs)

@@ -3,3 +3,7 @@ log_line_num_max: 100
 log_file_num_max_in_archive: 5
 log_time_del_archive: 604800.0
 log_date_format: "%Y-%m-%d"
+
+# database
+database_standard_host_name: "ns35.link-host.net"
+database_standard_type: "mysql"

@@ -1,4 +1,9 @@
-from components.log._saving_logs import _del_archives
+from components.database.requests import RequestsToDatabase
+from components.config import (
+    DATABASE_STANDARD_TYPE,
+    DATABASE_STANDARD_HOST_NAME,
+)
+from sqlalchemy import Column, Integer
 
 """
 name_bot = ""
@@ -34,4 +39,11 @@ bman.init_bot(name_bot=name_bot)
 """
 
 if __name__ == "__main__":
-    _del_archives("2024-06-12")
+    database = RequestsToDatabase(type_database="mysql", host_name="ns35.link-host.net")
+
+    columns = [
+        Column("test", Integer)
+    ]
+    database.create_table("PendingUsers", columns)
+
+    database.users_get_id("PendingUsers")

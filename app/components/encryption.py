@@ -36,4 +36,4 @@ def get_encrypted_data(path_to_file: str, path_to_file_secret_key: str):
             host_name += symbol
             del list(data)[data.index(symbol)]
 
-    return decrypted_data
+    return decrypted_dict_data

@@ -17,16 +17,10 @@ def load_yaml_file(file_path: str, encoding: str | None = None) -> dict:  # func
 
 
 # function to dump data into yaml file
-def dump_yaml_file(file_path: str, data: dict, encoding: str | None = None) -> None:
+def dump_yaml_file(file_path: str, data: dict) -> None:
     # opening a yaml file at the specified path and dumping data into it
-
-    if encoding is not None:
-        with open(file_path, "w", encoding=encoding) as yaml_file:
-            yaml.dump(data, yaml_file, sort_keys=False)
-
-    elif encoding is None:
-        with open(file_path, "w") as yaml_file:
-            yaml.dump(data, yaml_file, sort_keys=False)
+    with open(file_path, "w") as yaml_file:
+        yaml.dump(data, yaml_file, sort_keys=False, encoding="utf-8", allow_unicode=True)
 
 
 """

@@ -7,15 +7,18 @@ from sqlalchemy.engine.cursor import CursorResult
 from sqlalchemy.ext.automap import automap_base, AutomapBase
 
 # project lib
-from app.components.config import (
+from ..config import (
     DIR_CONF_YAML_SECRET,
     DIR_SECRET_KEYS,
     FILE_TYPE_YAML_CONFS,
     FILE_TYPE_SECRET_KEY,
+    DIR_CONF_YAML_STATIC,
+    FILE_NAME_CONF_BOTS_PROPERTIES,
 )
-from app.components.tools.instances import Instances
+from ..tools.instances import Instances
 from ..encryption import get_encrypted_data
 from ..log.logger import CustomLogger
+from ..yaml_manager import load_yaml_file
 
 
 # creating logger
@@ -24,30 +27,30 @@ logger = CustomLogger(__name__, ERROR)
 
 # creating class to interact with the database
 class RequestsToDatabase:
-    def __new__(cls, type_database: str, host_name: str):
-        path_to_connect_db_data_file = DIR_CONF_YAML_SECRET + "secret_database_hosts" + FILE_TYPE_YAML_CONFS
-        path_to_secret_key_file = DIR_SECRET_KEYS + "secret_key_database_hosts" + FILE_TYPE_SECRET_KEY
-
-        connect_db_data: str = cls.__get_connect_db_data(path_to_connect_db_data_file, path_to_secret_key_file,
-                                                         host_name)
-
-        # init engine sqlalchemy for db
-        _engine = create_engine(f"{type_database}://{connect_db_data}")
-
-        # init Metadata class
-        metadata: MetaData = MetaData()
-        metadata.reflect(bind=_engine)
-
-        # initialization of the base class of the database and table reflection
-        base: AutomapBase = automap_base(metadata=metadata)
-        base.prepare()
+    def __new__(cls, **kwargs):
+        # path_to_connect_db_data_file = DIR_CONF_YAML_SECRET + "secret_database_hosts" + FILE_TYPE_YAML_CONFS
+        # path_to_secret_key_file = DIR_SECRET_KEYS + "secret_key_database_hosts" + FILE_TYPE_SECRET_KEY
+        #
+        # connect_db_data: str = cls.__get_connect_db_data(path_to_connect_db_data_file, path_to_secret_key_file,
+        #                                                  host_name)
+        #
+        # # init engine sqlalchemy for db
+        # _engine = create_engine(f"{type_database}://{connect_db_data}")
+        #
+        # # init Metadata class
+        # metadata: MetaData = MetaData()
+        # metadata.reflect(bind=_engine)
+        #
+        # # initialization of the base class of the database and table reflection
+        # base: AutomapBase = automap_base(metadata=metadata)
+        # base.prepare()
 
         # creating new instance class
         instance = super().__new__(cls)
-        instance.database_name = host_name
-        instance._engine = _engine
-        instance.metadata = metadata
-        instance.base = base
+        # instance.database_name = host_name
+        # instance._engine = _engine
+        # instance.metadata = metadata
+        # instance.base = base
 
         """
         checking for the presence of a class instance in DatabaseRequestsClassInstances.instances.value,
@@ -63,6 +66,29 @@ class RequestsToDatabase:
             Instances.instances.value.append(instance)
 
             return instance
+
+    def __init__(self, type_database: str, host_name: str):
+        path_to_connect_db_data_file = DIR_CONF_YAML_SECRET + "secret_database_hosts" + FILE_TYPE_YAML_CONFS
+        path_to_secret_key_file = DIR_SECRET_KEYS + "secret_key_database_hosts" + FILE_TYPE_SECRET_KEY
+
+        connect_db_data: str = self.__get_connect_db_data(path_to_connect_db_data_file, path_to_secret_key_file,
+                                                          host_name)
+
+        # init engine sqlalchemy for db
+        _engine = create_engine(f"{type_database}://{connect_db_data}")
+
+        # init Metadata class
+        metadata: MetaData = MetaData()
+        metadata.reflect(bind=_engine)
+
+        # initialization of the base class of the database and table reflection
+        base: AutomapBase = automap_base(metadata=metadata)
+        base.prepare()
+
+        self.database_name = host_name
+        self._engine = _engine
+        self.metadata = metadata
+        self.base = base
 
     def __eq__(self, other):
         """
@@ -90,7 +116,7 @@ class RequestsToDatabase:
         decrypted_connect_db_data: dict = get_encrypted_data(path_to_file_db_data, path_to_file_secret_key)
 
         # checking whether the specified host name for connecting to the database is in the decrypted data
-        if host_name in decrypted_connect_db_data:
+        if host_name in decrypted_connect_db_data.keys():
             return decrypted_connect_db_data[host_name]
 
         else:
@@ -108,10 +134,11 @@ class RequestsToDatabase:
 
     def create_table(self, name_table: str, columns: list[Column]) -> None:  # func for creating a table in db
         # creating table
-        Table(name_table, self.metadata, *columns)
+        Table(name_table, self.metadata, *columns, extend_existing=True)
 
         # creating table in db
         self.metadata.create_all(self._engine)
+        self.base = automap_base(metadata=self.metadata)
 
     def insert(self, table: Table, values: list[dict]) -> None:  # func for implementation of query 'insert' in db
         # generating insert request
@@ -121,10 +148,18 @@ class RequestsToDatabase:
         self.execute(request_insert)
 
     def users_get_id(self, table: str) -> tuple:
-        jsm = JsonManager()
-        jsm.dload_cfg("bots_properties.json")
-        fields = jsm.buffer["YoungMouse"]["modals"]["reg_modal"]["questions"]
-        db_field = "did, " + ", ".join(field["custom_id"] for field in fields)
-        self.cursor.execute(f'SELECT {db_field} FROM {table}')
-        ids = self.cursor.fetchall()
-        return ids
+        # jsm = JsonManager()
+        # jsm.dload_cfg("bots_properties.json")
+        # fields = jsm.buffer["YoungMouse"]["modals"]["reg_modal"]["questions"]
+        fields = load_yaml_file(
+            DIR_CONF_YAML_STATIC + FILE_NAME_CONF_BOTS_PROPERTIES + FILE_TYPE_YAML_CONFS
+        )["YoungMouse"]["modals"]["reg_modal"]["questions"]
+
+        # print(self.base.classes.PendingUsers)
+
+        # db_field = "did, " + ", ".join(field["custom_id"] for field in fields)
+        # self.cursor.execute(f'SELECT {db_field} FROM {table}')
+        # ids = self.cursor.fetchall()
+
+        # columns_to_select = [getattr()]
+        # return ids

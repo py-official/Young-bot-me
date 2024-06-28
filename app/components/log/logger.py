@@ -5,7 +5,7 @@ from typing import Callable, Type
 import sys
 
 # my lib
-from _saving_logs import decorator_write_log_to_file
+from ._saving_logs import decorator_write_log_to_file
 
 
 class CustomLogger(logging.Logger):

@@ -22,6 +22,7 @@ FILE_NAME_CONF_DYNAMIC_YOUNG_MOUSE = "dynamic_young_mouse_config"
 FILE_NAME_CONF_STATIC = "static_config"
 FILE_NAME_CONF_STATIC_PROJECT = "static_project_config"
 FILE_NAME_CONF_LOG = "dynamic_log_config"
+FILE_NAME_CONF_BOTS_PROPERTIES = "bots_properties"
 
 # file types
 FILE_TYPE_YAML_CONFS = ".yaml"
@@ -49,3 +50,7 @@ LOG_LINE_NUM_MAX = _static_project_config_data["log_line_num_max"]
 LOG_FILE_NUM_MAX_IN_ARCHIVE = _static_project_config_data["log_file_num_max_in_archive"]
 LOG_TIME_DEL_ARCHIVE = _static_project_config_data["log_time_del_archive"]
 LOG_DATE_FORMAT = _static_project_config_data["log_date_format"]
+
+# database
+DATABASE_STANDARD_HOST_NAME = _static_project_config_data["database_standard_host_name"]
+DATABASE_STANDARD_TYPE = _static_project_config_data["database_standard_type"]
